@@ -1,1 +1,3 @@
-
+git <- "https://raw.githubusercontent.com/cld3033/"
+path <- "-Simulation-Optimization/main/M4%3A%20Data%20Driven%20Monte%20Carlo%20Simulation/"
+file <- "newsVendorData(1).csv"
