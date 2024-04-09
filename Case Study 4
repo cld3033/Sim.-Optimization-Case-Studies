@@ -1,0 +1,70 @@
+# The objective of this assignment is to use Monte Carlo simulation to assess
+# the risks and rewards associated with various expansion strategies for the caf´e
+# chain. You will evaluate the performance of different strategies and determine
+# the best one based on net present value (NPV), payback period, and return on
+# investment (ROI).
+
+# The following probability distributions will be used to model the uncertainty in
+# the data:
+# 1. Initial investment: Triangular distribution with min, max, and most likely
+# values provided for each location
+# 2. Monthly operating costs: Normal distribution with mean and standard
+# deviation provided for each location
+# 3. Monthly foot traffic: Poisson distribution with mean provided for each
+# location
+# 4. Average spend per customer: Lognormal distribution with mean and standard deviation provided for each location
+
+set.seed(124)
+
+discountRate = 0.1
+footTrafficGrowth = 0
+avgSpendGrowth = 0
+
+num_sim = 1000
+
+year = 3
+
+# marketsize can be thought of as foot traffic and market share can be thought of as average spend per customer
+# define annual profit 
+# ((monthly foot traffic * average spend per customer) - monthly operating costs)*12
+
+
+# Create function for annual profit 
+AnnualProfit <- function(year, footTraffic, footTrafficGrowth, avgSpend, 
+                         avgSpendGrowth, monthlyCost){
+  footTraffic = footTraffic*(1 + footTrafficGrowth)^(year -1)
+  avgSpend = avgSpend*(1 + avgSpendGrowth)^(year - 1)
+  sale = footTraffic*avgSpend
+  annualRevenue = 12*sale
+  annualCost = 12*monthlyCost
+  return(annualRevenue - annualCost)
+}
+
+# Create net peresent profit function
+netPresentProfit <- function(discountRate, profit, year){
+  netProfit <- 0
+  for (t in 1:year){
+    netProfit <- netProfit + profit[t]/(1+discountRate)^t
+  }
+  return(netProfit)
+}
+
+################# Location A #################################
+simulated_npv <- c()
+for (i in 1:num_sim){
+  monthlyCost = rnorm(1, mean = 15000, sd = 1000)
+  footTraffic = rpois(1, lambda = 4500)
+  avgSpend = rlnorm(1, meanlog = 8, sdlog = 1.5)
+  
+  # Project Cost 
+  initialInvestment = rtriangle(1, a = 150000, b = 200000, c = 175000)
+  
+  profit <- AnnualProfit(1:year, footTraffic, footTrafficGrowth, avgSpend, 
+                         avgSpendGrowth, monthlyCost)
+  
+  npvProfit <- netPresentProfit(discountRate, profit, year)
+  
+  npv = npvProfit - initialInvestment
+  
+  simulated_npv <- c(simulated_npv, npv)
+}
