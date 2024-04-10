@@ -1,3 +1,4 @@
+
 # The objective of this assignment is to use Monte Carlo simulation to assess
 # the risks and rewards associated with various expansion strategies for the caf´e
 # chain. You will evaluate the performance of different strategies and determine
@@ -28,6 +29,15 @@ year = 3
 # define annual profit 
 # ((monthly foot traffic * average spend per customer) - monthly operating costs)*12
 
+# Create funciton for monthly revenue 
+monlthlyRevenue <- function(footTraffic, avgSpend){
+  return(footTraffic*avgSpend)
+}
+
+# Create function for monthly net cash value
+monthlyNetCashVal <- function(monthlyRevenue, monthlyCost){
+  return(monthlyRevenue - monthlyCost)
+}
 
 # Create function for annual profit 
 AnnualProfit <- function(year, footTraffic, footTrafficGrowth, avgSpend, 
@@ -50,6 +60,9 @@ netPresentProfit <- function(discountRate, profit, year){
 }
 
 ################# Location A #################################
+library(triangle)
+simulated_monthly_Revenue <- c()
+simulated_monthly_net_cash <- c()
 simulated_npv <- c()
 for (i in 1:num_sim){
   monthlyCost = rnorm(1, mean = 15000, sd = 1000)
@@ -58,6 +71,12 @@ for (i in 1:num_sim){
   
   # Project Cost 
   initialInvestment = rtriangle(1, a = 150000, b = 200000, c = 175000)
+  
+  monthlyRevenue <- monlthlyRevenue(footTraffic, avgSpend)
+  simulated_monthly_Revenue <- c(simulated_monthly_Revenue, monthlyRevenue)
+  
+  monthlyNetCashVa <- monthlyNetCashVal(monthlyRevenue, monthlyCost)
+  simulated_monthly_net_cash <- c(simulated_monthly_net_cash, monthlyNetCashVa)
   
   profit <- AnnualProfit(1:year, footTraffic, footTrafficGrowth, avgSpend, 
                          avgSpendGrowth, monthlyCost)
