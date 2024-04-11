@@ -1,4 +1,3 @@
-
 # The objective of this assignment is to use Monte Carlo simulation to assess
 # the risks and rewards associated with various expansion strategies for the caf´e
 # chain. You will evaluate the performance of different strategies and determine
@@ -84,6 +83,7 @@ library(triangle)
 simulated_monthly_Revenue <- c()
 simulated_monthly_net_cash <- c()
 simulated_npv <- c()
+cumProfitMatrix <- matrix(0, nrow = num_sim, ncol = year)
 for (i in 1:num_sim){
   # Set stochastic variables
   monthlyCost = rnorm(1, mean = df["A", "Monthly_Operating_Cost_mean"], 
@@ -107,6 +107,12 @@ for (i in 1:num_sim){
   
   profit <- AnnualProfit(1:year, footTraffic, footTrafficGrowth, avgSpend, 
                          avgSpendGrowth, monthlyCost)
+
+  cumProfit <- cumsum(profit) - initialInvestment
+  
+  for (t in 1:year){
+    cumProfitMatrix[i, t] = cumProfit[t]
+  }
   
   npvProfit <- netPresentProfit(discountRate, profit, year)
   
@@ -115,4 +121,33 @@ for (i in 1:num_sim){
   simulated_npv <- c(simulated_npv, npv)
 }
 
+# Task 1 is done implicitly and shown via relabeling of the dataframe and 
+# setting up of the probability distributions for each stochastic variable
+
+# Task 2: A monte carlo simulation is created 
+  # The expected value for monthly revenue is:
+    mean(simulated_monthly_Revenue) # $39,611,742
+    quantile(simulated_monthly_Revenue, c(0.025, 0.975))
+    # the 95% confidence interval has a lower bound of $722,410.20 
+    # and an upper bound of $250,136,924.70
+    
+  # expected value for monthly net cash flow is:
+    mean(simulated_monthly_net_cash) # $39,596,788
+    quantile(simulated_monthly_net_cash, c(0.025, 0.975))
+    # the 95% confidence interval has a lower bound of $707,417.10
+    # and an upper bound of $250,123,492.80
+    
+
+
+# The net present value for location A after 3 years 
+mean(simulated_npv)
+quantile(simulated_npv, c(0.025, 0.975))
+# the 95% confidence interval has a lower bound of $20,933,643
+# and an upper bound of $7,464,065,628 
+
+# Based on 1000 simulations, location A is able to recover the cost of the
+# initial investment and return a profit within the first year.
+colMeans(cumProfitMatrix)
+
+# Break it down by month to see the exact month that it is paid off after opening
 
