@@ -1,0 +1,5 @@
+Location,Initial Investment (min),Initial Investment (most likely),Initial Investment (max),Monthly Operating Cost (mean),Monthly Operating Cost (std),Monthly Foot Traffic (mean),Average Spend per Customer (mean),Average Spend per Customer (std)
+A,150000,175000,200000,15000,1000,4500,8,1.5
+B,120000,140000,160000,12000,800,3500,10,2
+C,180000,210000,240000,18000,1200,6000,9,1.7
+D,100000,120000,140000,10000,700,2800,11,2.2
