@@ -14,6 +14,26 @@
 # 3. Monthly foot traffic: Poisson distribution with mean provided for each
 # location
 # 4. Average spend per customer: Lognormal distribution with mean and standard deviation provided for each location
+# load the data from the file stored in the github repository
+
+# Load and format data
+git <- "https://raw.githubusercontent.com/cld3033/"
+path <- "Sim.-Optimization-Case-Studies/main/"
+file <- "Case4_distParameters%20(1).csv"
+
+df <- read.csv(paste0(git, path, file))
+rownames(df) <- df[,1]
+df <- df[, 2:9]
+colnames(df) <- c("Initial_Investment_min",
+                  "Initial_Investment_most_likely",
+                  "Initial_Investment_max",
+                  "Monthly_Operating_Cost_mean",
+                  "Monthly_Operating_Cost_std",
+                  "Monthly_Foot_Traffic_mean",
+                  "Average_Spend_per_Customer_mean",
+                  "Average_Spend_per_Customer_std")
+
+
 
 set.seed(124)
 
@@ -30,7 +50,7 @@ year = 3
 # ((monthly foot traffic * average spend per customer) - monthly operating costs)*12
 
 # Create funciton for monthly revenue 
-monlthlyRevenue <- function(footTraffic, avgSpend){
+monthlyRevenue <- function(footTraffic, avgSpend){
   return(footTraffic*avgSpend)
 }
 
@@ -65,17 +85,24 @@ simulated_monthly_Revenue <- c()
 simulated_monthly_net_cash <- c()
 simulated_npv <- c()
 for (i in 1:num_sim){
-  monthlyCost = rnorm(1, mean = 15000, sd = 1000)
-  footTraffic = rpois(1, lambda = 4500)
-  avgSpend = rlnorm(1, meanlog = 8, sdlog = 1.5)
+  # Set stochastic variables
+  monthlyCost = rnorm(1, mean = df["A", "Monthly_Operating_Cost_mean"], 
+                      sd = df["A", "Monthly_Operating_Cost_std"])
+  
+  footTraffic = rpois(1, lambda = df["A", "Monthly_Foot_Traffic_mean"])
+  
+  avgSpend = rlnorm(1, meanlog = df["A", "Average_Spend_per_Customer_mean"], 
+                    sdlog = df["A", "Average_Spend_per_Customer_std"])
   
   # Project Cost 
-  initialInvestment = rtriangle(1, a = 150000, b = 200000, c = 175000)
+  initialInvestment = rtriangle(1, a = df["A", "Initial_Investment_min"], 
+                                b = df["A", "Initial_Investment_max"], 
+                                c = df["A", "Initial_Investment_most_likely"])
   
-  monthlyRevenue <- monlthlyRevenue(footTraffic, avgSpend)
-  simulated_monthly_Revenue <- c(simulated_monthly_Revenue, monthlyRevenue)
+  monthlyRev <- monthlyRevenue(footTraffic, avgSpend)
+  simulated_monthly_Revenue <- c(simulated_monthly_Revenue, monthlyRev)
   
-  monthlyNetCashVa <- monthlyNetCashVal(monthlyRevenue, monthlyCost)
+  monthlyNetCashVa <- monthlyNetCashVal(monthlyRev, monthlyCost)
   simulated_monthly_net_cash <- c(simulated_monthly_net_cash, monthlyNetCashVa)
   
   profit <- AnnualProfit(1:year, footTraffic, footTrafficGrowth, avgSpend, 
@@ -87,3 +114,5 @@ for (i in 1:num_sim){
   
   simulated_npv <- c(simulated_npv, npv)
 }
+
+
