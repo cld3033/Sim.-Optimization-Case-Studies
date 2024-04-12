@@ -79,11 +79,12 @@ netPresentProfit <- function(discountRate, profit, year){
   return(netProfit)
 }
 
-################# Location A #################################
+############################ Location A ########################################
 library(triangle)
 simulated_monthly_Revenue <- c()
 simulated_monthly_net_cash <- c()
 simulated_npv <- c()
+simulated_ROI <- c()
 cumProfitMatrix <- matrix(0, nrow = num_sim, ncol = year)
 for (i in 1:num_sim){
   # Set stochastic variables
@@ -110,6 +111,9 @@ for (i in 1:num_sim){
                          avgSpendGrowth, monthlyCost)
   
   cumProfit <- cumsum(profit) - initialInvestment
+  
+  ROI <- (cumProfit[3]/initialInvestment)*100
+  simulated_ROI <- c(simulated_ROI, ROI)
   
   for (t in 1:year){
     cumProfitMatrix[i, t] = cumProfit[t]
@@ -139,18 +143,24 @@ quantile(simulated_monthly_net_cash, c(0.025, 0.975))
 # and an upper bound of $230,924,832.30 
 
 
-
+# Task 3:
 # The net present value for location A after 3 years 
 mean(simulated_npv) # $1,097,208,026
 quantile(simulated_npv, c(0.025, 0.975))
 # the 95% confidence interval has a lower bound of $16,933,223 
 # and an upper bound of $6,891,145,461  
 
+# Task 4:
 # Based on 1000 simulations, location A is able to recover the cost of the
 # initial investment and return a profit within the first year.
 colMeans(cumProfitMatrix)
 
-# Break it down by month to see the exact month that it is paid off after opening
+# Task 5:
+mean(simulated_ROI) # ROI is already in percent format
+quantile(simulated_ROI, c(0.025, 0.975))
+
+# Break down by pay back period by month to see the exact month that it is
+# paid off after opening
 set.seed(123)
 num_profits <- num_sim * month
 simulated_monthly_Revenue <- c()
@@ -192,3 +202,4 @@ cumsum(simulated_monthly_net_cash[1, ]) - initialInvestment
 colMeans(cumMonthlyProfitMatrix)
 # The expected pay of period when breaking down cumulative profit by month
 # using 1000 simulations is month 1.
+
