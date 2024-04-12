@@ -34,7 +34,7 @@ colnames(df) <- c("Initial_Investment_min",
 
 
 
-set.seed(124)
+set.seed(123)
 
 discountRate = 0.1
 footTrafficGrowth = 0
@@ -127,24 +127,24 @@ for (i in 1:num_sim){
 
 # Task 2: A monte carlo simulation is created 
 # The expected value for monthly revenue is:
-mean(simulated_monthly_Revenue) # $39,611,742
+mean(simulated_monthly_Revenue) # $36,787,809
 quantile(simulated_monthly_Revenue, c(0.025, 0.975))
-# the 95% confidence interval has a lower bound of $722,410.20 
-# and an upper bound of $250,136,924.70
+# the 95% confidence interval has a lower bound of $588,036.10 
+# and an upper bound of $230,940,195.60 
 
 # expected value for monthly net cash flow is:
-mean(simulated_monthly_net_cash) # $39,596,788
+mean(simulated_monthly_net_cash) # $36,772,825
 quantile(simulated_monthly_net_cash, c(0.025, 0.975))
-# the 95% confidence interval has a lower bound of $707,417.10
-# and an upper bound of $250,123,492.80
+# the 95% confidence interval has a lower bound of $573,266.60
+# and an upper bound of $230,924,832.30 
 
 
 
 # The net present value for location A after 3 years 
-mean(simulated_npv)
+mean(simulated_npv) # $1,097,208,026
 quantile(simulated_npv, c(0.025, 0.975))
-# the 95% confidence interval has a lower bound of $20,933,643
-# and an upper bound of $7,464,065,628 
+# the 95% confidence interval has a lower bound of $16,933,223 
+# and an upper bound of $6,891,145,461  
 
 # Based on 1000 simulations, location A is able to recover the cost of the
 # initial investment and return a profit within the first year.
