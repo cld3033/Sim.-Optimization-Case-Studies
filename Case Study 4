@@ -45,6 +45,16 @@ num_sim = 1000
 year = 3
 month = 12
 
+# Create funciton for log mean
+logMean <- function(mean, sd){
+  return(log(mean) - 1/2*(log((sd/mean)^2 + 1)))
+}
+
+# Create function for log sd
+logSd <- function(mean, sd){
+  return(sqrt(log((sd/mean)^2 + 1)))
+}
+
 # marketsize can be thought of as foot traffic and market share can be thought of as average spend per customer
 # define annual profit 
 # ((monthly foot traffic * average spend per customer) - monthly operating costs)*12
@@ -93,8 +103,11 @@ for (i in 1:num_sim){
   
   footTraffic = rpois(1, lambda = df["A", "Monthly_Foot_Traffic_mean"])
   
-  avgSpend = rlnorm(1, meanlog = df["A", "Average_Spend_per_Customer_mean"], 
-                    sdlog = df["A", "Average_Spend_per_Customer_std"])
+  # convert mean of average spend per csutomer to log mean
+  avgSpendMean <- logMean(df["A", "Average_Spend_per_Customer_mean"], df["A", "Average_Spend_per_Customer_std"])
+  avgSpendSd <- logSd(df["A", "Average_Spend_per_Customer_mean"], df["A", "Average_Spend_per_Customer_std"])
+  avgSpend = rlnorm(1, meanlog = avgSpendMean, 
+                    sdlog = avgSpendSd)
   
   # Project Cost 
   initialInvestment = rtriangle(1, a = df["A", "Initial_Investment_min"], 
@@ -173,9 +186,11 @@ for (i in  1:num_sim){
     
     footTraffic = rpois(1, lambda = df["A", "Monthly_Foot_Traffic_mean"])
     
-    avgSpend = rlnorm(1, meanlog = df["A", "Average_Spend_per_Customer_mean"], 
-                      sdlog = df["A", "Average_Spend_per_Customer_std"])
-    
+    # convert mean of average spend per csutomer to log mean
+    avgSpendMean <- logMean(df["A", "Average_Spend_per_Customer_mean"], df["A", "Average_Spend_per_Customer_std"])
+    avgSpendSd <- logSd(df["A", "Average_Spend_per_Customer_mean"], df["A", "Average_Spend_per_Customer_std"])
+    avgSpend = rlnorm(1, meanlog = avgSpendMean, 
+                      sdlog = avgSpendSd)
     # Project Cost 
     initialInvestment = rtriangle(1, a = df["A", "Initial_Investment_min"], 
                                   b = df["A", "Initial_Investment_max"], 
@@ -190,7 +205,7 @@ for (i in  1:num_sim){
     cumMonthlyProfit <- (cumsum(simulated_monthly_net_cash[i, ]) - initialInvestment)
     
     #cumMonthlyProfitMatrix[i, ] <- (cumsum(simulated_monthly_net_cash[i, ]) - initialInvestment)
-  
+    
   }
   cumMonthlyProfitMatrix[i, ] <- (cumsum(simulated_monthly_net_cash[i, ]) - initialInvestment)
 }
@@ -202,4 +217,6 @@ cumsum(simulated_monthly_net_cash[1, ]) - initialInvestment
 colMeans(cumMonthlyProfitMatrix)
 # The expected pay of period when breaking down cumulative profit by month
 # using 1000 simulations is month 1.
+
+
 
