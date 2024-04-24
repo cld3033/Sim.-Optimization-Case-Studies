@@ -478,3 +478,134 @@ colMeans(cumMonthlyProfitMatrix)
 # The expected pay of period when breaking down cumulative profit by month
 # using 1000 simulations is month 6.
 
+
+############################ Location D ########################################
+set.seed(123)
+library(triangle)
+simulated_monthly_Revenue <- c()
+simulated_monthly_net_cash <- c()
+simulated_npv <- c()
+simulated_ROI <- c()
+cumProfitMatrix <- matrix(0, nrow = num_sim, ncol = year)
+for (i in 1:num_sim){
+  # Set stochastic variables
+  monthlyCost = rnorm(1, mean = df["D", "Monthly_Operating_Cost_mean"], 
+                      sd = df["D", "Monthly_Operating_Cost_std"])
+  
+  footTraffic = rpois(1, lambda = df["D", "Monthly_Foot_Traffic_mean"])
+  
+  # convert mean of average spend per csutomer to log mean
+  avgSpendMean <- logMean(df["D", "Average_Spend_per_Customer_mean"], df["D", "Average_Spend_per_Customer_std"])
+  avgSpendSd <- logSd(df["D", "Average_Spend_per_Customer_mean"], df["D", "Average_Spend_per_Customer_std"])
+  avgSpend = rlnorm(1, meanlog = avgSpendMean, 
+                    sdlog = avgSpendSd)
+  
+  # Project Cost 
+  initialInvestment = rtriangle(1, a = df["D", "Initial_Investment_min"], 
+                                b = df["D", "Initial_Investment_max"], 
+                                c = df["D", "Initial_Investment_most_likely"])
+  
+  monthlyRev <- monthlyRevenue(footTraffic, avgSpend)
+  simulated_monthly_Revenue <- c(simulated_monthly_Revenue, monthlyRev)
+  
+  monthlyNetCashVa <- monthlyNetCashVal(monthlyRev, monthlyCost)
+  simulated_monthly_net_cash <- c(simulated_monthly_net_cash, monthlyNetCashVa)
+  
+  profit <- AnnualProfit(1:year, footTraffic, footTrafficGrowth, avgSpend, 
+                         avgSpendGrowth, monthlyCost)
+  
+  cumProfit <- cumsum(profit) - initialInvestment
+  
+  ROI <- (cumProfit[3]/initialInvestment)*100
+  simulated_ROI <- c(simulated_ROI, ROI)
+  
+  for (t in 1:year){
+    cumProfitMatrix[i, t] = cumProfit[t]
+  }
+  
+  npvProfit <- netPresentProfit(discountRate, profit, year)
+  
+  npv = npvProfit - initialInvestment
+  
+  simulated_npv <- c(simulated_npv, npv)
+}
+
+# Task 1 is done implicitly and shown via relabeling of the dataframe and 
+# setting up of the probability distributions for each stochastic variable
+
+# Task 2: A monte carlo simulation is created 
+# The expected value for monthly revenue is:
+mean(simulated_monthly_Revenue) # $30,507.11
+quantile(simulated_monthly_Revenue, c(0.025, 0.975))
+# the 95% confidence interval has a lower bound of $19,491.63
+# and an upper bound of $44,166.18
+
+# expected value for monthly net cash flow is:
+mean(simulated_monthly_net_cash) # $20,516.88
+quantile(simulated_monthly_net_cash, c(0.025, 0.975))
+# the 95% confidence interval has a lower bound of $9,491.614
+# and an upper bound of $33,893.307  
+
+
+# Task 3:
+# The net present value for location A after 3 years 
+mean(simulated_npv) # $492,363.50
+quantile(simulated_npv, c(0.025, 0.975))
+# the 95% confidence interval has a lower bound of $164,234.60
+# and an upper bound of $900,261.10 
+
+# Task 4:
+# Based on 1000 simulations, location A is able to recover the cost of the
+# initial investment and return a profit within the first year.
+colMeans(cumProfitMatrix)
+
+# Task 5:
+mean(simulated_ROI) # ROI is already in percent format
+quantile(simulated_ROI, c(0.025, 0.975))
+
+# Break down by pay back period by month to see the exact month that it is
+# paid off after opening
+set.seed(123)
+num_profits <- num_sim * month
+simulated_monthly_Revenue <- c()
+simulated_monthly_net_cash <- matrix(0, nrow = num_sim, ncol = month)
+cumMonthlyProfitMatrix <- matrix(0, nrow = num_sim, ncol = month)
+for (i in  1:num_sim){
+  for(t in 1:month){
+    monthlyCost = rnorm(1, mean = df["D", "Monthly_Operating_Cost_mean"], 
+                        sd = df["D", "Monthly_Operating_Cost_std"])
+    
+    footTraffic = rpois(1, lambda = df["D", "Monthly_Foot_Traffic_mean"])
+    
+    # convert mean of average spend per csutomer to log mean
+    avgSpendMean <- logMean(df["D", "Average_Spend_per_Customer_mean"], df["D", "Average_Spend_per_Customer_std"])
+    avgSpendSd <- logSd(df["D", "Average_Spend_per_Customer_mean"], df["D", "Average_Spend_per_Customer_std"])
+    avgSpend = rlnorm(1, meanlog = avgSpendMean, 
+                      sdlog = avgSpendSd)
+    # Project Cost 
+    initialInvestment = rtriangle(1, a = df["D", "Initial_Investment_min"], 
+                                  b = df["D", "Initial_Investment_max"], 
+                                  c = df["D", "Initial_Investment_most_likely"])
+    
+    monthlyRev <- monthlyRevenue(footTraffic, avgSpend)
+    simulated_monthly_Revenue <- c(simulated_monthly_Revenue, monthlyRev)
+    
+    monthlyNetCashVa <- monthlyNetCashVal(monthlyRev, monthlyCost)
+    simulated_monthly_net_cash[i,t] <- monthlyNetCashVa
+    
+    cumMonthlyProfit <- (cumsum(simulated_monthly_net_cash[i, ]) - initialInvestment)
+    
+    #cumMonthlyProfitMatrix[i, ] <- (cumsum(simulated_monthly_net_cash[i, ]) - initialInvestment)
+    
+  }
+  cumMonthlyProfitMatrix[i, ] <- (cumsum(simulated_monthly_net_cash[i, ]) - initialInvestment)
+}
+
+cumMonthlyProfitMatrix[1, ]
+cumsum(simulated_monthly_net_cash[1, ]) - initialInvestment
+# Not sure why these aren't equal
+
+colMeans(cumMonthlyProfitMatrix)
+# The expected pay of period when breaking down cumulative profit by month
+# using 1000 simulations is month 6.
+
