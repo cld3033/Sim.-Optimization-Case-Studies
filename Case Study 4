@@ -433,10 +433,13 @@ mean(simulated_ROI) # ROI is already in percent format
 quantile(simulated_ROI, c(0.025, 0.975))
 
 # Task 7: 
-mean(simulated_npv > 0)
-mean(simulated_monthly_net_cash > 0)
-mean(simulated_monthly_Revenue > 0)
-mean(simulated_ROI > 0)
+mean(simulated_npv < 0)
+mean(simulated_npv == 0)
+mean(simulated_monthly_net_cash < 0)
+mean(simulated_monthly_net_cash == 0)
+mean(simulated_monthly_Revenue < 0)
+mean(simulated_monthly_Revenue == 0)
+mean(simulated_ROI == 0)
 
 # Break down by pay back period by month to see the exact month that it is
 # paid off after opening
