@@ -45,7 +45,7 @@ num_sim = 1000
 year = 3
 month = 12
 
-# Create funciton for log mean
+# Create function for log mean
 logMean <- function(mean, sd){
   return(log(mean) - 1/2*(log((sd/mean)^2 + 1)))
 }
@@ -143,15 +143,12 @@ for (i in 1:num_sim){
 # setting up of the probability distributions for each stochastic variable
 
 # Task 2: A monte carlo simulation is created 
-simulated_monthly_RevenueA <- simulated_monthly_Revenue
-
 # The expected value for monthly revenue is:
 mean(simulated_monthly_Revenue) # $35,691.81
 quantile(simulated_monthly_Revenue, c(0.025, 0.975))
 # the 95% confidence interval has a lower bound of $23,918.29 
 # and an upper bound of $50,436.68 
 
-simulated_monthly_net_cashA <- simulated_monthly_net_cash
 # expected value for monthly net cash flow is:
 mean(simulated_monthly_net_cash) # $20,708.01
 quantile(simulated_monthly_net_cash, c(0.025, 0.975))
@@ -160,7 +157,6 @@ quantile(simulated_monthly_net_cash, c(0.025, 0.975))
 
 
 # Task 3:
-simulated_npvA <- simulated_npv
 # The net present value for location A after 3 years 
 mean(simulated_npv) # $443,119.10
 quantile(simulated_npv, c(0.025, 0.975))
@@ -173,7 +169,6 @@ quantile(simulated_npv, c(0.025, 0.975))
 colMeans(cumProfitMatrix)
 
 # Task 5:
-simulated_ROIA <- simulated_ROI
 mean(simulated_ROI) # ROI is already in percent format
 quantile(simulated_ROI, c(0.025, 0.975))
 
@@ -278,14 +273,11 @@ for (i in 1:num_sim){
 # setting up of the probability distributions for each stochastic variable
 
 # Task 2: A monte carlo simulation is created 
-simulated_monthly_RevenueB <- simulated_monthly_Revenue
 # The expected value for monthly revenue is:
 mean(simulated_monthly_Revenue) # $34,655.73
 quantile(simulated_monthly_Revenue, c(0.025, 0.975))
 # the 95% confidence interval has a lower bound of $22,171.86
 # and an upper bound of $50,012.07 
-
-simulated_monthly_net_cashB <- simulated_monthly_net_cash
 
 # expected value for monthly net cash flow is:
 mean(simulated_monthly_net_cash) # $22,668.54
@@ -295,7 +287,6 @@ quantile(simulated_monthly_net_cash, c(0.025, 0.975))
 
 
 # Task 3:
-simulated_npvB <- simulated_npv
 # The net present value for location A after 3 years 
 mean(simulated_npv) # $536,577.50
 quantile(simulated_npv, c(0.025, 0.975))
@@ -308,13 +299,13 @@ quantile(simulated_npv, c(0.025, 0.975))
 colMeans(cumProfitMatrix)
 
 # Task 5:
-simulated_ROIB <- simulated_ROI
 mean(simulated_ROI) # ROI is already in percent format
 quantile(simulated_ROI, c(0.025, 0.975))
 
 # Break down by pay back period by month to see the exact month that it is
 # paid off after opening
 set.seed(123)
+num_profits <- num_sim * month
 simulated_monthly_Revenue <- c()
 simulated_monthly_net_cash <- matrix(0, nrow = num_sim, ncol = month)
 cumMonthlyProfitMatrix <- matrix(0, nrow = num_sim, ncol = month)
@@ -342,6 +333,8 @@ for (i in  1:num_sim){
     simulated_monthly_net_cash[i,t] <- monthlyNetCashVa
     
     cumMonthlyProfit <- (cumsum(simulated_monthly_net_cash[i, ]) - initialInvestment)
+    
+    #cumMonthlyProfitMatrix[i, ] <- (cumsum(simulated_monthly_net_cash[i, ]) - initialInvestment)
     
   }
   cumMonthlyProfitMatrix[i, ] <- (cumsum(simulated_monthly_net_cash[i, ]) - initialInvestment)
@@ -411,13 +404,11 @@ for (i in 1:num_sim){
 
 # Task 2: A monte carlo simulation is created 
 # The expected value for monthly revenue is:
-simulated_monthly_RevenueC <- simulated_monthly_Revenue
 mean(simulated_monthly_Revenue) # $53,513.65
 quantile(simulated_monthly_Revenue, c(0.025, 0.975))
 # the 95% confidence interval has a lower bound of $35,732.39
 # and an upper bound of $75,725.64
 
-simulated_monthly_net_cashC <- simulated_monthly_net_cash
 # expected value for monthly net cash flow is:
 mean(simulated_monthly_net_cash) # $35,531.99
 quantile(simulated_monthly_net_cash, c(0.025, 0.975))
@@ -426,7 +417,6 @@ quantile(simulated_monthly_net_cash, c(0.025, 0.975))
 
 
 # Task 3:
-simulated_npvC <- simulated_npv
 # The net present value for location A after 3 years 
 mean(simulated_npv) # $850,467.70
 quantile(simulated_npv, c(0.025, 0.975))
@@ -439,9 +429,14 @@ quantile(simulated_npv, c(0.025, 0.975))
 colMeans(cumProfitMatrix)
 
 # Task 5:
-simulated_ROIC <- simulated_ROI
 mean(simulated_ROI) # ROI is already in percent format
 quantile(simulated_ROI, c(0.025, 0.975))
+
+# Task 7: 
+mean(simulated_npv > 0)
+mean(simulated_monthly_net_cash > 0)
+mean(simulated_monthly_Revenue > 0)
+mean(simulated_ROI > 0)
 
 # Break down by pay back period by month to see the exact month that it is
 # paid off after opening
@@ -488,7 +483,6 @@ cumsum(simulated_monthly_net_cash[1, ]) - initialInvestment
 colMeans(cumMonthlyProfitMatrix)
 # The expected pay of period when breaking down cumulative profit by month
 # using 1000 simulations is month 6.
-
 
 ############################ Location D ########################################
 set.seed(123)
@@ -545,15 +539,12 @@ for (i in 1:num_sim){
 # setting up of the probability distributions for each stochastic variable
 
 # Task 2: A monte carlo simulation is created 
-simulated_monthly_RevenueD <- simulated_monthly_Revenue
-
 # The expected value for monthly revenue is:
 mean(simulated_monthly_Revenue) # $30,507.11
 quantile(simulated_monthly_Revenue, c(0.025, 0.975))
 # the 95% confidence interval has a lower bound of $19,491.63
 # and an upper bound of $44,166.18
 
-simulated_monthly_net_cashD <- simulated_monthly_net_cash
 # expected value for monthly net cash flow is:
 mean(simulated_monthly_net_cash) # $20,516.88
 quantile(simulated_monthly_net_cash, c(0.025, 0.975))
@@ -562,7 +553,6 @@ quantile(simulated_monthly_net_cash, c(0.025, 0.975))
 
 
 # Task 3:
-simulated_npvD <- simulated_npv
 # The net present value for location A after 3 years 
 mean(simulated_npv) # $492,363.50
 quantile(simulated_npv, c(0.025, 0.975))
@@ -575,7 +565,6 @@ quantile(simulated_npv, c(0.025, 0.975))
 colMeans(cumProfitMatrix)
 
 # Task 5:
-simulated_ROID <- simulated_ROI
 mean(simulated_ROI) # ROI is already in percent format
 quantile(simulated_ROI, c(0.025, 0.975))
 
@@ -625,108 +614,3 @@ colMeans(cumMonthlyProfitMatrix)
 # The expected pay of period when breaking down cumulative profit by month
 # using 1000 simulations is month 6.
 
-##################################### Plots ########################################d
-
-# Plot distributions for simulated monthly revenues
-
-par(mfrow=c(2,2))
-p1 = hist(simulated_monthly_RevenueA,main ="Location A Simulated Monthly Revenue",
-     xlab = "Simulated Monthly Revenue")
-    abline(v = 23918.29, col = "red")
-    abline(v = 50436.68, col = "red")
-    abline(v = mean(simulated_monthly_RevenueA), col = "blue")
-p2 = hist(simulated_monthly_RevenueB, main = "Location B Simulated Monthly Revenue",
-     xlab = "Simulated Monthly Revenue")
-    abline(v = 50012.07, col = "red")
-    abline(v = 22171.86, col = "red")
-    abline(v = mean(simulated_monthly_RevenueB), col = "blue")
-p3 = hist(simulated_monthly_RevenueC, main = "Location C Simulated Monthly Revenue",
-     xlab = "Simulated Monthly Revenue")
-    abline(v = 35732.39, col = "red")
-    abline(v = 75725.64, col = "red")
-    abline(v = mean(simulated_monthly_RevenueC), col = "blue")
-p4 = hist(simulated_monthly_RevenueD, main = "Location D Simulated Monthly Revenue",
-     xlab = "Simulated Monthly Revenue")
-    abline(v = 19491.63, col = "red")
-    abline(v = 44166.18, col = "red")
-    abline(v = mean(simulated_monthly_RevenueD), col = "blue")
-
-# Plot distributions for simulated Simulated Net Cash Flow
-    
-par(mfrow=c(2,2))
-p1 = hist(simulated_monthly_net_cashA,main ="Location A Simulated Net Cash Flow",
-              xlab = "Simulated Net Cash Flow")
-    abline(v = quantile(simulated_monthly_net_cashA, c(0.025, 0.975))[1], col = "red")
-    abline(v = quantile(simulated_monthly_net_cashA, c(0.025, 0.975))[2], col = "red")
-    abline(v = mean(simulated_monthly_net_cashA), col = "blue")
-    
-p2 = hist(simulated_monthly_net_cashB, main = "Location B Simulated Net Cash Flow",
-              xlab = "Simulated Net Cash Flow")
-    abline(v = quantile(simulated_monthly_net_cashB, c(0.025, 0.975))[1], col = "red")
-    abline(v = quantile(simulated_monthly_net_cashB, c(0.025, 0.975))[2], col = "red")
-    abline(v = mean(simulated_monthly_net_cashB), col = "blue")
-    
-p3 = hist(simulated_monthly_net_cashC, main = "Location C Simulated Net Cash Flow",
-              xlab = "Simulated Net Cash Flow")
-    abline(v = quantile(simulated_monthly_net_cashC,c(0.025, 0.975))[1], col = "red")
-    abline(v = quantile(simulated_monthly_net_cashC, c(0.025, 0.975))[2], col = "red")
-    abline(v = mean(simulated_monthly_net_cashC), col = "blue")
-    
-p4 = hist(simulated_monthly_net_cashD, main = "Location D Simulated Net Cash Flow",
-              xlab = "Simulated Net Cash Flow")
-    abline(v = quantile(simulated_monthly_net_cashD, c(0.025, 0.975))[1], col = "red")
-    abline(v = quantile(simulated_monthly_net_cashD, c(0.025, 0.975))[2], col = "red")
-    abline(v = mean(simulated_monthly_net_cashD), col = "blue")
-    
-# Plot distributions for simulated Simulated NPV
-    par(mfrow=c(2,2))
-    p1 = hist(simulated_npvA, main ="Location A Simulated NPV",
-              xlab = "Simulated Net Present Value")
-    abline(v = quantile(simulated_npvA, c(0.025, 0.975))[1], col = "red")
-    abline(v = quantile(simulated_npvA, c(0.025, 0.975))[2], col = "red")
-    abline(v = mean(simulated_npvA), col = "blue")
-    
-    p2 = hist(simulated_npvB, main ="Location B Simulated NPV",
-              xlab = "Simulated Net Present Value")
-    abline(v = quantile(simulated_npvB, c(0.025, 0.975))[1], col = "red")
-    abline(v = quantile(simulated_npvB, c(0.025, 0.975))[2], col = "red")
-    abline(v = mean(simulated_npvB), col = "blue")
-    
-    p3 = hist(simulated_npvC, main ="Location C Simulated NPV",
-              xlab = "Simulated Net Present Value")
-    abline(v = quantile(simulated_npvC, c(0.025, 0.975))[1], col = "red")
-    abline(v = quantile(simulated_npvC, c(0.025, 0.975))[2], col = "red")
-    abline(v = mean(simulated_npvC), col = "blue")
-    
-    p4 = hist(simulated_npvD, main ="Location D Simulated NPV",
-              xlab = "Simulated Net Present Value")
-    abline(v = quantile(simulated_npvD, c(0.025, 0.975))[1], col = "red")
-    abline(v = quantile(simulated_npvD, c(0.025, 0.975))[2], col = "red")
-    abline(v = mean(simulated_npvD), col = "blue")
-    
-# Plot distributions for ROI
-    par(mfrow=c(2,2))
-    p1 = hist(simulated_ROIA, main ="Location A Simulated ROI",
-              xlab = "Simulated Return on Investment")
-    abline(v = quantile(simulated_ROIA, c(0.025, 0.975))[1], col = "red")
-    abline(v = quantile(simulated_ROIA, c(0.025, 0.975))[2], col = "red")
-    abline(v = mean(simulated_ROIA), col = "blue")
-    
-    p2 = hist(simulated_ROIB, main ="Location B Simulated ROI",
-              xlab = "Simulated Return on Investment")
-    abline(v = quantile(simulated_ROIB, c(0.025, 0.975))[1], col = "red")
-    abline(v = quantile(simulated_ROIB, c(0.025, 0.975))[2], col = "red")
-    abline(v = mean(simulated_ROIB), col = "blue")
-    
-    p3 = hist(simulated_ROIC, main ="Location C Simulated ROI",
-              xlab = "Simulated Return on Investment")
-    abline(v = quantile(simulated_ROIC, c(0.025, 0.975))[1], col = "red")
-    abline(v = quantile(simulated_ROIC, c(0.025, 0.975))[2], col = "red")
-    abline(v = mean(simulated_ROIC), col = "blue")
-    
-    p4 = hist(simulated_ROID, main ="Location D Simulated ROI",
-              xlab = "Simulated Return on Investment")
-    abline(v = quantile(simulated_ROID, c(0.025, 0.975))[1], col = "red")
-    abline(v = quantile(simulated_ROID, c(0.025, 0.975))[2], col = "red")
-    abline(v = mean(simulated_ROID), col = "blue")
-    
