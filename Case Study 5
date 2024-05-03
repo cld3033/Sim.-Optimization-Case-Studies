@@ -4,3 +4,213 @@ path <- "Sim.-Optimization-Case-Studies/main/"
 file <- "Case5_emergency-room.csv"
 
 data <- read.csv(paste0(git, path, file))
+
+# Case Study 5: ER DES 
+
+#Read in Data for Input Analysis
+
+data = read.csv("C:\\Users\\Matth\\OneDrive\\Documents\\Sim_Optimization\\Case5_emergency-room.csv")
+
+#Visualize the data
+hist(data$interArrival, main = "Inter_arrival Time for 100 Random Patients")
+
+#Time Series Pot
+plot(data$interArrival, type="b", main= "Inter_arrival Time for 100 Random Patients",
+     ylab = "time", xlab= "count")
+
+#Autocorrelation Plot
+acf(data$interArrival)
+
+#Hypothesize Possible Distributions 
+library(fitdistrplus)
+descdist(data$interArrival, discrete =FALSE)
+#The best distributions to consider are Gamma and Weibull
+
+
+# We first evaluate Gamma
+fit.gamma = fitdist(data$interArrival, "gamma")
+summary(fit.gamma)
+
+#Evaluate Weibull
+fit.weibull = fitdist(data$interArrival, "weibull")
+summary(fit.weibull)
+
+#Gamma has a slightly larger log likelihood
+
+#Apply goodness of fit test
+g = gofstat(fit.gamma)
+g$chisqpvalue
+#P value = 0.17
+
+w = gofstat(fit.weibull)
+w$chisqpvalue
+#P value = 0.13
+
+#H0: The interarrival time was distributed by Gamma distribution
+#Test is NOT rejected since p > 0.05
+#Therefore we will simulate using Gamma distribution since the p value is higher than Weibull. 
+
+
+#Build out Environment and Trajectories
+library(simmer)
+library(simmer.plot)
+
+#Patient Trajectory
+patient = trajectory("ER Patients") %>%
+  select(c("doctor"), policy = "first-available") %>%
+  
+  branch(function() sample(1:2, 1, prob = c(0.18, 0.82), replace =TRUE), continue = c(T,T),
+         
+         ########### Sub Trajectory A ###########
+         trajectory("A") %>%
+           log_("NIA Patient") %>%
+           set_attribute("NIA",3) %>%
+           set_prioritization(values = c(3,7,T)) %>%
+           
+           seize("doctor",1) %>%
+           timeout(function() runif(1, 10, 70)) %>%
+           release("doctor",1) %>%
+           
+           set_attribute("NIA" , 2) %>%
+           set_prioritization(values = c(2,7,T)) %>%
+             log_("NIA Patient has seen Doctor, P2") %>%
+           
+           seize("doctor", 1) %>%
+           timeout(function() runif(1,10,50)) %>% 
+           release("doctor",1),
+           
+         
+         
+         ############ Sub Trajectory B ###########
+         trajectory("B") %>%
+           set_attribute("CW",1) %>%
+           set_prioritization(values = c(1,7,T)) %>%
+           
+           seize("doctor",1) %>%
+           timeout(function() runif(1,5,25)) %>% 
+           release("doctor",1) %>%
+           
+           set_attribute("CW", 2) %>%
+           set_prioritization(values = c(2,7,T)) %>%
+           
+           seize("doctor",1) %>%
+           timeout(function() runif(1,5,15)) %>% 
+           release("doctor",1)
+           
+         
+         )
+
+set.seed(123)
+envs = lapply(1:20, function(i){
+  env = simmer("ER") %>%
+    add_resource("doctor",2) %>%
+    add_generator("patient", patient, function() rgamma(1, shape = 0.963, rate = 0.064), mon =2) %>%
+    run(1440)
+})
+
+
+#Create arrivals variables 
+arrivals = get_mon_arrivals(envs)
+head(arrivals)
+
+#Plot the wait times for all patients
+plot(arrivals, metric = "waiting_time")
+
+#Create resources variables
+resources = get_mon_resources(envs)
+
+#Plot the utilization of the doctors
+plot(resources, metric = "utilization")
+
+#Now let us look at wait times per priority type
+x = get_mon_attributes(envs)
+all = merge(arrivals, x, by = c("name", "replication"), all=T)
+
+NIA_P = na.omit(subset(all, all$value ==3))
+CW_P = na.omit(subset(all, all$value ==1))
+
+#Calculate the Waiting times
+NIA_waiting = (NIA_P$end_time - NIA_P$start_time) - NIA_P$activity_time
+
+CW_waiting = (CW_P$end_time - CW_P$start_time) - CW_P$activity_time
+
+#Average Waiting Times per patient priority
+mean(NIA_waiting)
+#28.1 minutes
+
+mean(CW_waiting)
+#170.2 minutes
+
+
+#Find the Average Flow Time for each type of patient
+NIA_flow = (NIA_P$end_time - NIA_P$start_time)
+
+CW_flow = (CW_P$end_time - CW_P$start_time)
+
+mean(NIA_flow, na.rm =T)
+#98.08 minutes in the ER
+
+mean(CW_flow, na.rm =T)
+#194.84 minutes in the ER
+
+
+
+###### Adding 1 more Doctor to the ER ######
+set.seed(123)
+envs_2 = lapply(1:20, function(i){
+  env = simmer("ER") %>%
+    add_resource("doctor",3) %>%
+    add_generator("patient", patient, function() rgamma(1, shape = 0.963, rate = 0.064), mon =2) %>%
+    run(1440)
+})
+
+
+#Create arrivals variables 
+arrivals_2 = get_mon_arrivals(envs_2)
+head(arrivals_2)
+
+#Plot the wait times for all patients
+plot(arrivals_2, metric = "waiting_time")
+
+#Create resources variables
+resources_2 = get_mon_resources(envs_2)
+
+#Plot the utilization of the doctors
+plot(resources_2, metric = "utilization")
+
+#Now let us look at wait times per priority type
+x_2 = get_mon_attributes(envs_2)
+all_2 = merge(arrivals_2, x_2, by = c("name", "replication"), all=T)
+
+NIA_P_2 = na.omit(subset(all_2, all_2$value ==3))
+CW_P_2 = na.omit(subset(all_2, all_2$value ==1))
+
+#Calculate the Waiting times
+NIA_waiting_2 = (NIA_P_2$end_time - NIA_P_2$start_time) - NIA_P_2$activity_time
+
+CW_waiting_2 = (CW_P_2$end_time - CW_P_2$start_time) - CW_P_2$activity_time
+
+#Average Waiting Times per patient priority
+mean(NIA_waiting_2)
+#8.28 minutes
+
+mean(CW_waiting_2)
+#24.81 minutes
+
+#Find the Average Flow Time for each type of patient
+NIA_flow_2 = (NIA_P_2$end_time - NIA_P_2$start_time)
+
+CW_flow_2 = (CW_P_2$end_time - CW_P_2$start_time)
+
+mean(NIA_flow_2, na.rm =T)
+#80.18 minutes in the ER
+
+mean(CW_flow_2, na.rm =T)
+#49.61 minutes in the ER
+
+
+#We suggest to employ another doctor to have 3 total
+#The new overall average waiting times for each priority are 8.28 minutes and 
+#24.81 minutes respectively. The flow times for each priority also decreased to
+#80.18 minutes and 49.61 minutes. This indicates that with one more doctor added
+#in the ER a CW patient will spend less time in the ER overall. 
