@@ -1,0 +1,153 @@
+#Objective function: Z=2500 x1 + 5000 x2 + 10000 x3+ 25000 x4
+
+#X1: Standard Intel Pentium PC
+#X2: Enhanced Intel Pentium PC 
+#X3: SGI Workstation
+#X4: Sun Workstation 
+
+#max number of employees needing servers
+#prob += 30*x1 + 80*x2 + 200*x3 + 2000*x4 <= 270
+
+
+# MONTHS 1 & 2
+
+from pulp import *
+
+prob = LpProblem("Server Installation", LpMinimize)
+
+#decision variables 
+x1 = LpVariable("Standard Intel", 0, cat = 'Integer')
+x2 = LpVariable("Enhanced Intel", 0, cat = 'Integer')
+x3 = LpVariable("SGI", 0, cat = 'Integer')
+x4 = LpVariable("Sun", 0, cat = 'Integer')
+
+#objective function including discount for months 1 and 2 only: 
+prob += 2500*x1 + 5000*x2 + 9000*x3 + 18750*x3, "Obj"
+
+# constraint for how  much money can be spent
+prob +=  2500*x1 + 5000*x2 + 9000*x3 + 18750*x4 <= 9500 
+
+#minimum number of employees to be serviced in month 2 
+prob += 30*x1 + 80*x2 + 200*x3 + 2000*x4 >= 50
+
+
+#solve
+print(prob)
+
+prob.solve()
+print("status: " + LpStatus[prob.status])
+#optimal 
+    
+for variable in prob.variables():
+    print("{}* = {}".format(variable.name,
+                            variable.varValue))
+    
+print("OptimalProfit=${}".format(value(prob.objective)))
+
+#covers 60 employees 
+
+#### ----------------------------------------------------- ######
+
+#MONTH 3
+
+from pulp import *
+
+prob = LpProblem("Server Installation", LpMinimize)
+
+#decision variables 
+x1 = LpVariable("Standard Intel", 0, cat = 'Integer')
+x2 = LpVariable("Enhanced Intel", 0, cat = 'Integer')
+x3 = LpVariable("SGI", 0, cat = 'Integer')
+x4 = LpVariable("Sun", 0, cat = 'Integer')
+
+#objective function including discount for month 3: 
+prob += 2500*x1 + 5000*x2 + 9000*x3 + 25000*x3, "Obj"
+
+#number of employees to be serviced in month 3
+prob += 30*x1 + 80*x2 + 200*x3 + 2000*x4 == 170
+
+
+
+#solve
+print(prob)
+
+prob.solve()
+print("status: " + LpStatus[prob.status])
+#optimal 
+    
+for variable in prob.variables():
+    print("{}* = {}".format(variable.name,
+                            variable.varValue))
+    
+print("OptimalProfit=${}".format(value(prob.objective)))
+
+
+#### ----------------------------------------------------- ######
+
+#MONTH 4
+
+from pulp import *
+
+prob = LpProblem("Server Installation", LpMinimize)
+
+#decision variables 
+x1 = LpVariable("Standard Intel", 0, cat = 'Integer')
+x2 = LpVariable("Enhanced Intel", 0, cat = 'Integer')
+x3 = LpVariable("SGI", 0, cat = 'Integer')
+x4 = LpVariable("Sun", 0, cat = 'Integer')
+
+#objective function including discount for month 4: 
+prob += 2500*x1 + 5000*x2 + 9000*x3 + 25000*x3, "Obj"
+
+#number of employees to be serviced in month 4
+prob += 30*x1 + 80*x2 + 200*x3 + 2000*x4 == 30
+
+#solve
+print(prob)
+
+prob.solve()
+print("status: " + LpStatus[prob.status])
+#optimal 
+    
+for variable in prob.variables():
+    print("{}* = {}".format(variable.name,
+                            variable.varValue))
+    
+print("OptimalProfit=${}".format(value(prob.objective)))
+
+#### ----------------------------------------------------- ######
+
+#MONTH 5
+
+from pulp import *
+
+prob = LpProblem("Server Installation", LpMinimize)
+
+#decision variables 
+x1 = LpVariable("Standard Intel", 0, cat = 'Integer')
+x2 = LpVariable("Enhanced Intel", 0, cat = 'Integer')
+x3 = LpVariable("SGI", 0, cat = 'Integer')
+x4 = LpVariable("Sun", 0, cat = 'Integer')
+
+#objective function including discount for month 5: 
+prob += 2500*x1 + 5000*x2 + 9000*x3 + 25000*x3, "Obj"
+
+#number of employees to be serviced in month 5
+prob += 30*x1 + 80*x2 + 200*x3 + 2000*x4 >= 70
+
+#max number of employees needing servers
+prob += 30*x1 + 80*x2 + 200*x3 + 2000*x4 <= 270
+
+#solve
+print(prob)
+
+prob.solve()
+print("status: " + LpStatus[prob.status])
+#optimal 
+    
+for variable in prob.variables():
+    print("{}* = {}".format(variable.name,
+                            variable.varValue))
+    
+print("OptimalProfit=${}".format(value(prob.objective)))
+
